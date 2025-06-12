@@ -1,0 +1,119 @@
+from abc import ABC, abstractmethod
+
+class Jarat(ABC):
+    def __init__(self, jaratszam, celallomas, jegyar):
+        self.jaratszam = jaratszam
+        self.celallomas = celallomas
+        self.jegyar = jegyar
+
+    @abstractmethod
+    def jarat_tipus(self):
+        pass
+
+class BelfoldiJarat(Jarat):
+    def __init__(self, jaratszam, celallomas):
+        super().__init__(jaratszam, celallomas, 10000)
+
+    def jarat_tipus(self):
+        return "Belfoldi"
+
+class NemzetkoziJarat(Jarat):
+    def __init__(self, jaratszam, celallomas):
+        super().__init__(jaratszam, celallomas, 40000)
+
+    def jarat_tipus(self):
+        return "Nemzetkozi"
+
+class JegyFoglalas:
+    def __init__(self, utas_nev, jarat):
+        self.utas_nev = utas_nev
+        self.jarat = jarat
+
+    def __str__(self):
+        return f"{self.utas_nev} - {self.jarat.jaratszam} ({self.jarat.celallomas}) - {self.jarat.jarat_tipus()} - {self.jarat.jegyar} Ft"
+
+class LegiTarsasag:
+    def __init__(self, nev):
+        self.nev = nev
+        self.jaratok = []
+
+    def jarat_hozzaadas(self, jarat):
+        self.jaratok.append(jarat)
+
+    def get_jarat(self, jaratszam):
+        for j in self.jaratok:
+            if j.jaratszam == jaratszam:
+                return j
+        return None
+
+def elore_betoltott_adatok():
+    legitarsasag = LegiTarsasag("AirPython")
+
+    j1 = BelfoldiJarat("BP101", "Debrecen")
+    j2 = NemzetkoziJarat("NP202", "London")
+    j3 = NemzetkoziJarat("NP203", "Berlin")
+
+    legitarsasag.jarat_hozzaadas(j1)
+    legitarsasag.jarat_hozzaadas(j2)
+    legitarsasag.jarat_hozzaadas(j3)
+
+    foglalasok = [
+        JegyFoglalas("Kiss Anna", j1),
+        JegyFoglalas("Szabo Bela", j2),
+        JegyFoglalas("Nagy Petra", j3),
+        JegyFoglalas("Kovacs Daniel", j1),
+        JegyFoglalas("Toth Luca", j2),
+        JegyFoglalas("Horvath Mate", j3),
+    ]
+
+    return legitarsasag, foglalasok
+
+def main():
+    legitarsasag, foglalasok = elore_betoltott_adatok()
+
+    while True:
+        print("\n--- Repulojegy Foglalasi Rendszer ---")
+        print("1. Jegy foglalasa")
+        print("2. Foglalas lemondasa")
+        print("3. Foglalasok listazasa")
+        print("0. Kilepes")
+        valasz = input("Valasztas: ")
+
+        if valasz == "1":
+            nev = input("Utas neve: ")
+            jaratszam = input("Jaratszam: ").strip()
+            jarat = legitarsasag.get_jarat(jaratszam)
+            if jarat:
+                foglalas = JegyFoglalas(nev, jarat)
+                foglalasok.append(foglalas)
+                print(f"Foglalas megtortent! Ar: {jarat.jegyar} Ft")
+            else:
+                print("Hiba: nincs ilyen jarat.")
+        elif valasz == "2":
+            nev = input("Utas neve: ")
+            jaratszam = input("Jaratszam: ").strip()
+            talalat = None
+            for f in foglalasok:
+                if f.utas_nev == nev and f.jarat.jaratszam == jaratszam:
+                    talalat = f
+                    break
+            if talalat:
+                foglalasok.remove(talalat)
+                print("Foglalas torolve.")
+            else:
+                print("Nem talalhato ilyen foglalas.")
+        elif valasz == "3":
+            print("\nAktualis foglalasok:")
+            if not foglalasok:
+                print("Nincsenek foglalasok.")
+            else:
+                for f in foglalasok:
+                    print(f)
+        elif valasz == "0":
+            print("Kilepes a rendszerbol...")
+            break
+        else:
+            print("Ervenytelen opcio, probald ujra.")
+
+if __name__ == "__main__":
+    main()
